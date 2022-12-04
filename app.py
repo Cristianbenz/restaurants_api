@@ -62,5 +62,32 @@ def create_restaurant():
 
     return jsonify(new_restaurant)
 
+@app.put('/api/restaurant/<restaurant_id>')
+def modify_restaurant(restaurant_id):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=extras.RealDictCursor)
+    data = request.get_json()
+    rating = data["rating"]
+    name = data["name"]
+    site = data["site"]
+    email = data["email"]
+    phone = data['phone']
+    street = data["street"]
+    city = data["city"]
+    state = data["state"]
+    lat = data["lat"]
+    lng = data["lng"]
+
+    cur.execute(
+        "UPDATE restaurants SET (rating, name, site, email, phone, street, city, state, lat, lng) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) WHERE id = %s RETURNING *",
+    (rating, name, site, email, phone, street, city, state, lat, lng, restaurant_id))
+
+    conn.commit()
+    modified_restaurant = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    return jsonify(modified_restaurant)
+
 if __name__ == "__main__":
     app.run(port=environ.get('PORT'), debug=True)
