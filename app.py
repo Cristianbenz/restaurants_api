@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from psycopg2 import connect, extras
 from dotenv import load_dotenv
 from os import environ
+from load_restaurants import parse_info
 
 load_dotenv()
 
@@ -96,4 +97,5 @@ def modify_restaurant(restaurant_id):
 
 
 if __name__ == "__main__":
+    parse_info(get_connection)
     app.run(port=environ.get('PORT'), debug=True)
