@@ -15,6 +15,7 @@ Brings a list of all existing restaurants.
 
 ### POST /api/restaurant
 Create a new restaurant with the following schema
+
 {
     "id": "string",
     "rating": "integer(0 <= x <= 4)",
