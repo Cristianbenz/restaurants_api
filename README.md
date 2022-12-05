@@ -2,8 +2,10 @@
 API made with python, postgreSQL and the extension postGIS in wich you can get information about restaurants that already exist in the database, add a new restaurant to the database, modify them and get statistic information about restaurants in a especific zone.
 
 ## SETUP
-Step 1: cloe this repository.
+Step 1: clone this repository.
+
 Step 2: create venv.
+
 Step 3: run pip install -r requirements.txt
 
 ## ROUTES
