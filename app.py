@@ -99,6 +99,28 @@ def modify_restaurant(restaurant_id):
 
     return jsonify(modified_restaurant)
 
+@app.patch('/api/restaurant/<restaurant_id>')
+def partial_modify_restaurant(restaurant_id):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=extras.RealDictCursor)
+    
+    data = request.get_json()
+    qry = "UPDATE restaurants SET "
+
+    for key in data:
+        qry += f"{key}={data[key]},"
+
+    qry = qry[:-1] + f" WHERE id='{restaurant_id}' RETURNING *"
+
+    cur.execute(qry)
+
+    conn.commit()
+    modified_restaurant = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    return jsonify(modified_restaurant)
+
 
 @app.get('/api/restaurants/statistics')
 def get_by_location():
