@@ -3,6 +3,7 @@ from psycopg2 import connect, extras
 from dotenv import load_dotenv
 from os import environ
 from load_restaurants import parse_info
+import statistics
 
 load_dotenv()
 
@@ -33,7 +34,10 @@ def get_restaurants():
     if len(result) == 0:
         return jsonify({"message": "Not exist any restaurant yet"}), 404
 
-    return jsonify(result)
+    return jsonify({
+        "total": len(result),
+        "results": result
+    })
 
 
 @app.post('/api/restaurant')
@@ -94,6 +98,40 @@ def modify_restaurant(restaurant_id):
     conn.close()
 
     return jsonify(modified_restaurant)
+
+
+@app.get('/api/restaurants/statistics')
+def get_by_location():
+    queries = request.args
+    latitude = queries["latitude"]
+    longitude = queries["longitude"]
+    radius = queries["radius"]
+
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=extras.RealDictCursor)
+
+    cur.execute(
+        f"SELECT rating, name FROM restaurants r WHERE (ST_DWithin('POINT({latitude} {longitude})'::geography, ('POINT('|| r.lat || ' ' || r.lng ||')')::geography, {radius}))")
+    result = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if len(result) < 1:
+        return jsonify({"message": "Not exist any restaurant into the gave zone"}), 404
+    
+    rating = [restaurant["rating"] for restaurant in result]
+    count = len(result)
+    avg = statistics.mean(rating)
+    std = 0
+
+    if len(rating) > 2:
+        std = statistics.stdev(rating)
+    
+    return jsonify({
+        "count": count,
+        "avg": avg,
+        "std": std
+    })
 
 
 if __name__ == "__main__":
